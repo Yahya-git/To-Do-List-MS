@@ -4,7 +4,6 @@ from zoneinfo import ZoneInfo
 from sqlalchemy.orm import Session
 from src.exceptions import GetError
 from src.models.users import User
-from src.repository.tasks import get_max_tasks
 from src.repository.users import get_user, get_verification_token
 
 
@@ -25,13 +24,4 @@ def false_token(token: int, db: Session):
         if verification_token.expires_at < now_local:
             return True
     except GetError:
-        return True
-
-
-def max_tasks_reached(
-    db: Session,
-    id: int,
-):
-    task_check = get_max_tasks(id, db)
-    if task_check:
         return True

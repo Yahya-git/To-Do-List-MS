@@ -2,14 +2,20 @@ version: "3.9"
 services:
   gateway:
     container_name: gateway
+    command:
+      [
+        sh,
+        -c,
+        pip install debugpy -t /tmp && python /tmp/debugpy --wait-for-client --listen 0.0.0.0:5678 -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload,
+      ]
     build:
       context: ./gateway
       dockerfile: Dockerfile
     env_file:
       - ./gateway/.env
-    command: bash -c "uvicorn main:app --host 0.0.0.0 --port 8000 --reload --log-level debug"
     ports:
       - 8001:8000
+      - 5678:5678
     networks:
       - todolistnetwork
     depends_on:
@@ -32,7 +38,7 @@ services:
     networks:
       - todolistnetwork
     depends_on:
-      postgres:
+      postgres-db:
         condition: service_healthy
 
   tasks:
@@ -49,11 +55,11 @@ services:
     networks:
       - todolistnetwork
     depends_on:
-      postgres:
+      postgres-db:
         condition: service_healthy
 
-  postgres:
-    container_name: postgres
+  postgres-db:
+    container_name: postgres-db
     image: postgres
     restart: always
     ports:

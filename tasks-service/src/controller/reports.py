@@ -1,19 +1,17 @@
 import pickle
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header
 from sqlalchemy.orm import Session
+from src.config import settings
 from src.database import get_db
 from src.dtos import dto_misc, dto_reports
 from src.handler import reports as handler
 from src.redis import redis_client
 
-from gateway.config import settings
-from gateway.utils import validate_user
-
 router = APIRouter(prefix="/reports", tags=["Reports"])
 
 get_db_session = Depends(get_db)
-validated_user = Depends(validate_user)
+validated_user = Header(None)
 
 
 @router.get(

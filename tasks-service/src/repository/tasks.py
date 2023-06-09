@@ -5,6 +5,7 @@ from sqlalchemy import Date, cast, func
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.functions import coalesce
+from src.config import settings
 from src.exceptions import (
     CreateError,
     DeleteError,
@@ -13,13 +14,19 @@ from src.exceptions import (
     UpdateError,
 )
 from src.models.tasks import Attachment, Task
-from src.repository import checks
 
-from gateway.config import settings
+
+def max_tasks_reached(
+    db: Session,
+    id: int,
+):
+    task_check = get_max_tasks(id, db)
+    if task_check:
+        return True
 
 
 def create_task(id, task: Task, db: Session):
-    if checks.max_tasks_reached(db, id):
+    if max_tasks_reached(db, id):
         raise MaxTasksReachedError
     try:
         query = (

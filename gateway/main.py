@@ -2,12 +2,11 @@ import json
 from datetime import datetime
 
 import httpx
+from config import settings
+from dtos import dto_misc, dto_tasks, dto_users
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from utils import validate_user
-
-from config import settings
-from dtos import dto_misc, dto_tasks, dto_users
 
 app = FastAPI()
 
@@ -196,6 +195,17 @@ async def get_tasks(current_user: int = validated_user):
         if response.status_code == 307:
             redirect_url = response.headers["location"]
             response = await client.get(redirect_url)
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=response.text)
+        response_data = response.json()
+    return response_data
+
+
+@app.get("/tasks/all")
+async def get_tasks_and_user(current_user: int = validated_user):
+    headers = {"email": current_user.email, "id": str(current_user.id)}
+    async with httpx.AsyncClient(headers=headers, follow_redirects=True) as client:
+        response = await client.get(f"{tasks_url}/tasks/all")
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail=response.text)
         response_data = response.json()

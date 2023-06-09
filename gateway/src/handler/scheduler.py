@@ -4,11 +4,11 @@ from fastapi import APIRouter
 from fastapi_utils.session import FastAPISessionMaker
 from fastapi_utils.tasks import repeat_every
 from sqlalchemy.orm import Session
+from src.repository import tasks as tasks_repository
+from src.repository import users as users_repository
 
 from gateway import utils
 from gateway.config import settings
-from src.repository import tasks as tasks_repository
-from src.repository import users as users_repository
 
 database_uri = f"postgresql+psycopg2://{settings.db_username}:{settings.db_password}@{settings.db_hostname}:{settings.db_port}/{settings.db_name}"
 sessionmaker = FastAPISessionMaker(database_uri)

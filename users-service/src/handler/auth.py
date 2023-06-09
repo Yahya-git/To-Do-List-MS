@@ -9,10 +9,9 @@ from src.exceptions import (
     SendEmailError,
     UpdateError,
 )
+from src.handler import utils
 from src.repository import checks
 from src.repository import users as repository
-
-from gateway import utils
 
 
 async def login(

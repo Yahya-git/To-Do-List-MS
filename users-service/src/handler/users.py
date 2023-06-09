@@ -17,11 +17,10 @@ from src.exceptions import (
     SendEmailError,
     UpdateError,
 )
+from src.handler import utils
 from src.models.users import User
 from src.repository import checks
 from src.repository import users as repository
-
-from gateway import utils
 
 
 async def create_user(user_data: dto_users.CreateUserRequest, db: Session):
@@ -106,6 +105,14 @@ async def update_user(
             detail=f'{"message: something went wrong while updating a user"}',
         ) from None
     return updated_user
+
+
+async def get_user(
+    db: Session,
+    current_user: int,
+):
+    user = repository.get_user(db, user_id=current_user.id, email=None)
+    return user
 
 
 def verify_email(token: int, db: Session):

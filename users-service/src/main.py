@@ -1,12 +1,9 @@
 import os
 
-# import sqltap
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from src.controller import auth, users
 from src.logger import setup_logger
-
-from .controller import auth, reports, tasks, users
-from .handler import scheduler
 
 logger = setup_logger()
 
@@ -55,20 +52,8 @@ async def app_entry(request: Request, call_next):
     )
 
 
-# @app.middleware("http")
-# async def add_sql_tap(request: Request, call_next):
-#     profiler = sqltap.start()
-#     response = await call_next(request)
-#     statistics = profiler.collect()
-#     sqltap.report(statistics, "report.txt", report_format="text")
-#     return response
-
-
 app.include_router(users.router)
-app.include_router(tasks.router)
 app.include_router(auth.router)
-app.include_router(scheduler.router)
-app.include_router(reports.router)
 
 
 @app.get("/")
