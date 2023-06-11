@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Generic, List, Optional, TypeVar
 
 from pydantic import BaseModel, EmailStr
@@ -97,3 +98,15 @@ class TokenData(BaseModel):
 class CurrentUser(BaseModel):
     email: EmailStr
     id: int
+
+
+class UserResponse(BaseModel):
+    email: EmailStr
+    first_name: Optional[str]
+    last_name: Optional[str]
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        orm_mode = True

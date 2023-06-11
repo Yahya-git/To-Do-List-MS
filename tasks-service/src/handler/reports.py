@@ -17,7 +17,7 @@ def count_tasks(db: Session, current_user: int):
 
 def average_tasks(db: Session, current_user: int):
     try:
-        average = repository.get_average_tasks(current_user.id, db)
+        average = repository.get_average_tasks(current_user, db)
         return average
     except Exception:
         raise HTTPException(

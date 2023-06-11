@@ -5,7 +5,6 @@ class Settings(BaseSettings):
     url: str
     users_service_url: str
     tasks_service_url: str
-    gateway_timeout: int
     secret_key: str
     algorithm: str
     access_token_expire_time: int

@@ -11,11 +11,13 @@ def get_count_of_tasks(id, db: Session):
     return count
 
 
-def get_average_tasks(id, db: Session):
+def get_average_tasks(current_user, db: Session):
     query = text(
-        "SELECT COALESCE(AVG(completed_tasks / days_since_creation), 0) AS average_tasks_completed_per_day FROM ( SELECT COUNT(tasks.id) AS completed_tasks, GREATEST(DATE_PART('day', NOW() - users.created_at), 1) AS days_since_creation FROM tasks INNER JOIN users ON tasks.user_id = users.id WHERE tasks.is_completed = TRUE AND tasks.user_id = :user_id GROUP BY users.id) AS task_counts;"
+        "SELECT COALESCE(AVG(completed_tasks / days_since_creation), 0) AS average_tasks_completed_per_day FROM ( SELECT COUNT(tasks.id) AS completed_tasks, GREATEST(DATE_PART('day', NOW() - :created_at), 1) AS days_since_creation FROM tasks WHERE tasks.is_completed = TRUE AND tasks.user_id = :user_id) AS task_counts;"
     )
-    average = db.execute(query, {"user_id": id}).fetchone()
+    average = db.execute(
+        query, {"created_at": current_user.created_at, "user_id": current_user.id}
+    ).fetchone()
     return average
 
 
