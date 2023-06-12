@@ -1,14 +1,11 @@
 from datetime import datetime, timedelta
 
+from config import settings
+from dtos.dto_misc import TokenData
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from fastapi_mail import ConnectionConfig, FastMail, MessageSchema
 from fastapi_sso.sso.google import GoogleSSO
 from jose import JWTError, jwt
-from passlib.context import CryptContext
-
-from config import settings
-from dtos.dto_misc import EmailList, TokenData
 from src.exceptions import CreateError
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -39,11 +36,6 @@ def create_access_token(data: dict):
         raise CreateError from e
 
 
-def return_access_token(data):
-    access_token = create_access_token(data)
-    return {"access_token": access_token, "token_type": "bearer"}
-
-
 def verify_access_token(token: str, credentials_exception):
     try:
         decoded_jwt = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -70,34 +62,3 @@ def validate_user(token: str = oauth2):
     )
     user = verify_access_token(token, credentials_exception)
     return user
-
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
-def hash_password(password: str):
-    return pwd_context.hash(password)
-
-
-def verify_password(attempted_password, hashed_password):
-    return pwd_context.verify(attempted_password, hashed_password)
-
-
-conf = ConnectionConfig(
-    MAIL_USERNAME=settings.mail_username,
-    MAIL_PASSWORD=settings.mail_password,
-    MAIL_FROM=settings.mail_from,
-    MAIL_PORT=settings.mail_port,
-    MAIL_SERVER=settings.mail_server,
-    MAIL_STARTTLS=settings.mail_tls,
-    MAIL_SSL_TLS=settings.mail_ssl,
-    USE_CREDENTIALS=settings.use_credentials,
-)
-
-
-async def send_mail(email: EmailList, subject_template: str, template: str):
-    message = MessageSchema(
-        subject=subject_template, recipients=[email], body=template, subtype="html"
-    )
-    fm = FastMail(conf)
-    await fm.send_message(message)
